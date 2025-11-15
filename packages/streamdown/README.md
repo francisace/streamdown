@@ -197,6 +197,47 @@ The `defaultRehypePlugins` and `defaultRemarkPlugins` exports provide access to:
 - `gfm` - GitHub Flavored Markdown support
 - `math` - Math syntax support
 
+## Chrome Extension Compatibility
+
+Streamdown is designed to work in restricted JavaScript environments like Chrome extensions. The library uses an optional dependency pattern for Mermaid diagrams to avoid bundling issues.
+
+### The Problem
+
+Chrome extensions have limitations that prevent standard bundling of certain dependencies:
+
+- **Content Script Restrictions**: Content scripts run in a sandboxed context with limited module resolution
+- **CSP Violations**: Some libraries (like Mermaid) use `Function()` calls that violate Content Security Policy
+- **Bundler Resolution**: Dependencies like `@mermaid-js/parser` cannot be resolved in extension environments
+
+### The Solution
+
+Streamdown removes the hard dependency on `mermaid` and uses dependency injection instead:
+
+```tsx
+import { Streamdown, type MermaidLoader } from 'streamdown';
+
+// Option 1: No mermaid support (safe for all environments)
+<Streamdown>{markdown}</Streamdown>
+
+// Option 2: Provide your own mermaid loader (when environment supports it)
+const mermaidLoader: MermaidLoader = async () => (await import('mermaid')).default;
+<Streamdown mermaidLoader={mermaidLoader}>{markdown}</Streamdown>
+```
+
+### Usage in Chrome Extensions
+
+When bundling for Chrome extensions:
+
+1. **Omit the `mermaidLoader` prop** - Mermaid code blocks render as plain text with a message
+2. **No build errors** - Library bundles successfully without mermaid dependencies
+3. **Full functionality** - All other features (code highlighting, math, tables) work normally
+
+This pattern enables Streamdown to work across environments:
+- ✓ Web applications (full mermaid support)
+- ✓ Chrome extensions (mermaid optional)
+- ✓ Server-side rendering (mermaid optional)
+- ✓ Restricted JavaScript contexts (mermaid optional)
+
 ## Props
 
 Streamdown accepts all the same props as react-markdown, plus additional streaming-specific options:

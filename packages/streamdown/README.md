@@ -17,7 +17,6 @@ Streamdown powers the [AI Elements Response](https://ai-sdk.dev/elements/compone
 - 🎨 **Unterminated block parsing** - Styles incomplete bold, italic, code, links, and headings
 - 📊 **GitHub Flavored Markdown** - Tables, task lists, and strikethrough support
 - 🔢 **Math rendering** - LaTeX equations via KaTeX
-- 📈 **Mermaid diagrams** - Render Mermaid diagrams as code blocks with a button to render them
 - 🎯 **Code syntax highlighting** - Beautiful code blocks with Shiki
 - 🛡️ **Security-first** - Built with rehype-harden for safe rendering
 - ⚡ **Performance optimized** - Memoized rendering for efficient updates
@@ -49,61 +48,6 @@ export default function Page() {
   return <Streamdown>{markdown}</Streamdown>;
 }
 ```
-
-### Mermaid Diagrams
-
-Streamdown supports Mermaid diagrams using the `mermaid` language identifier:
-
-```tsx
-import { Streamdown, type MermaidConfig, type MermaidLoader } from 'streamdown';
-
-const mermaidLoader: MermaidLoader = async () => (await import('mermaid')).default;
-
-export default function Page() {
-  const markdown = `
-# Flowchart Example
-
-\`\`\`mermaid
-graph TD
-    A[Start] --> B{Is it working?}
-    B -->|Yes| C[Great!]
-    B -->|No| D[Debug]
-    D --> B
-\`\`\`
-
-# Sequence Diagram
-
-\`\`\`mermaid
-sequenceDiagram
-    participant User
-    participant API
-    participant Database
-
-    User->>API: Request data
-    API->>Database: Query
-    Database-->>API: Results
-    API-->>User: Response
-\`\`\`
-  `;
-
-  // Optional: Customize Mermaid theme and colors
-  const mermaidConfig: MermaidConfig = {
-    theme: 'dark',
-    themeVariables: {
-      primaryColor: '#ff0000',
-      primaryTextColor: '#fff'
-    }
-  };
-
-  return (
-    <Streamdown mermaidConfig={mermaidConfig} mermaidLoader={mermaidLoader}>
-      {markdown}
-    </Streamdown>
-  );
-}
-```
-
-> **Note:** Mermaid support is optional. If you omit the `mermaidLoader` prop, Mermaid code fences will render as plain text. This keeps Streamdown safe to bundle in environments (like Chrome extensions) where `@mermaid-js/parser` cannot be resolved. Supply your own loader only when you need diagrams and can alias Mermaid’s dependencies appropriately.
 
 ### With AI SDK
 
@@ -196,47 +140,6 @@ The `defaultRehypePlugins` and `defaultRemarkPlugins` exports provide access to:
 **defaultRemarkPlugins:**
 - `gfm` - GitHub Flavored Markdown support
 - `math` - Math syntax support
-
-## Chrome Extension Compatibility
-
-Streamdown is designed to work in restricted JavaScript environments like Chrome extensions. The library uses an optional dependency pattern for Mermaid diagrams to avoid bundling issues.
-
-### The Problem
-
-Chrome extensions have limitations that prevent standard bundling of certain dependencies:
-
-- **Content Script Restrictions**: Content scripts run in a sandboxed context with limited module resolution
-- **CSP Violations**: Some libraries (like Mermaid) use `Function()` calls that violate Content Security Policy
-- **Bundler Resolution**: Dependencies like `@mermaid-js/parser` cannot be resolved in extension environments
-
-### The Solution
-
-Streamdown removes the hard dependency on `mermaid` and uses dependency injection instead:
-
-```tsx
-import { Streamdown, type MermaidLoader } from 'streamdown';
-
-// Option 1: No mermaid support (safe for all environments)
-<Streamdown>{markdown}</Streamdown>
-
-// Option 2: Provide your own mermaid loader (when environment supports it)
-const mermaidLoader: MermaidLoader = async () => (await import('mermaid')).default;
-<Streamdown mermaidLoader={mermaidLoader}>{markdown}</Streamdown>
-```
-
-### Usage in Chrome Extensions
-
-When bundling for Chrome extensions:
-
-1. **Omit the `mermaidLoader` prop** - Mermaid code blocks render as plain text with a message
-2. **No build errors** - Library bundles successfully without mermaid dependencies
-3. **Full functionality** - All other features (code highlighting, math, tables) work normally
-
-This pattern enables Streamdown to work across environments:
-- ✓ Web applications (full mermaid support)
-- ✓ Chrome extensions (mermaid optional)
-- ✓ Server-side rendering (mermaid optional)
-- ✓ Restricted JavaScript contexts (mermaid optional)
 
 ## Props
 

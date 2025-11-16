@@ -11,8 +11,6 @@ import type { ExtraProps, Options } from "react-markdown";
 import type { BundledLanguage } from "shiki";
 import {
   ControlsContext,
-  MermaidConfigContext,
-  MermaidLoaderContext,
 } from "../index";
 import {
   CodeBlock,
@@ -20,7 +18,6 @@ import {
   CodeBlockDownloadButton,
 } from "./code-block";
 import { ImageComponent } from "./image";
-import { Mermaid, MermaidFullscreenButton } from "./mermaid";
 import { TableCopyButton, TableDownloadDropdown } from "./table";
 import { cn } from "./utils";
 
@@ -71,35 +68,14 @@ function sameClassAndNode(
 }
 
 const shouldShowControls = (
-  config: boolean | { table?: boolean; code?: boolean; mermaid?: boolean | { download?: boolean; copy?: boolean; fullscreen?: boolean } },
-  type: "table" | "code" | "mermaid"
+  config: boolean | { table?: boolean; code?: boolean },
+  type: "table" | "code"
 ) => {
   if (typeof config === "boolean") {
     return config;
   }
 
   return config[type] !== false;
-};
-
-const shouldShowMermaidControl = (
-  config: boolean | { table?: boolean; code?: boolean; mermaid?: boolean | { download?: boolean; copy?: boolean; fullscreen?: boolean } },
-  controlType: "download" | "copy" | "fullscreen"
-): boolean => {
-  if (typeof config === "boolean") {
-    return config;
-  }
-
-  const mermaidConfig = config.mermaid;
-  
-  if (mermaidConfig === false) {
-    return false;
-  }
-  
-  if (mermaidConfig === true || mermaidConfig === undefined) {
-    return true;
-  }
-  
-  return mermaidConfig[controlType] !== false;
 };
 
 type OlProps = WithNode<JSX.IntrinsicElements["ol"]>;
@@ -591,8 +567,6 @@ const CodeComponent = ({
 }: DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement> &
   ExtraProps) => {
   const inline = node?.position?.start.line === node?.position?.end.line;
-  const mermaidConfig = useContext(MermaidConfigContext);
-  const mermaidLoader = useContext(MermaidLoaderContext);
   const controlsConfig = useContext(ControlsContext);
 
   if (inline) {
@@ -625,49 +599,6 @@ const CodeComponent = ({
     code = children.props.children;
   } else if (typeof children === "string") {
     code = children;
-  }
-
-  if (language === "mermaid") {
-    if (!mermaidLoader) {
-      return (
-        <div
-          className={cn(
-            "my-4 rounded-xl border p-4 text-muted-foreground text-sm",
-            className
-          )}
-          data-streamdown="mermaid-block"
-        >
-          Mermaid rendering is disabled. Provide a{" "}
-          <code className="rounded bg-muted px-1 py-0.5">mermaidLoader</code>{" "}
-          prop to <code className="rounded bg-muted px-1 py-0.5">Streamdown</code>{" "}
-          to enable diagram support.
-        </div>
-      );
-    }
-
-    const showMermaidControls = shouldShowControls(controlsConfig, "mermaid");
-    const showDownload = shouldShowMermaidControl(controlsConfig, "download");
-    const showCopy = shouldShowMermaidControl(controlsConfig, "copy");
-    const showFullscreen = shouldShowMermaidControl(controlsConfig, "fullscreen");
-
-    return (
-      <div
-        className={cn(
-          "group relative my-4 h-auto rounded-xl border p-4",
-          className
-        )}
-        data-streamdown="mermaid-block"
-      >
-        {showMermaidControls && (showDownload || showCopy || showFullscreen) && (
-          <div className="flex items-center justify-end gap-2">
-            {showDownload && <CodeBlockDownloadButton code={code} language={language} />}
-            {showCopy && <CodeBlockCopyButton code={code} />}
-            {showFullscreen && <MermaidFullscreenButton chart={code} config={mermaidConfig} />}
-          </div>
-        )}
-        <Mermaid chart={code} config={mermaidConfig} />
-      </div>
-    );
   }
 
   const showCodeControls = shouldShowControls(controlsConfig, "code");

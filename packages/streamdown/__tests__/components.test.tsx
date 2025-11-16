@@ -1,17 +1,12 @@
 import { render } from "@testing-library/react";
 import React from "react";
 import type { Options } from "react-markdown";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { components as importedComponents } from "../lib/components";
-import { MermaidLoaderContext } from "../index";
 
 // Type assertion: we know all components are defined in our implementation
 type RequiredComponents = Required<NonNullable<Options["components"]>>;
 const components = importedComponents as RequiredComponents;
-const mockLoader = vi.fn(async () => ({
-  initialize: vi.fn(),
-  render: vi.fn().mockResolvedValue({ svg: "<svg />" }),
-}));
 
 describe("Markdown Components", () => {
   describe("List Components", () => {
@@ -268,38 +263,6 @@ describe("Markdown Components", () => {
       );
       // The pre component returns its children directly
       expect(container.textContent).toBe("plain text code");
-    });
-    it("should render mermaid block with correct structure", () => {
-      const Code = components.code!;
-      const { container } = render(
-        <MermaidLoaderContext.Provider value={mockLoader}>
-          <Code
-            className="language-mermaid"
-            node={
-              {
-                position: {
-                  start: { line: 1, column: 1 },
-                  end: { line: 2, column: 10 },
-                },
-              } as any
-            }
-          >
-            {"graph TD; A-->B;"}
-          </Code>
-        </MermaidLoaderContext.Provider>
-      );
-      
-      // Verify mermaid block structure is created
-      const mermaidBlock = container.querySelector(
-        '[data-streamdown="mermaid-block"]'
-      );
-      expect(mermaidBlock).toBeTruthy();
-      expect(mermaidBlock?.className).toContain("group");
-      expect(mermaidBlock?.className).toContain("relative");
-      expect(mermaidBlock?.className).toContain("rounded-xl");
-      expect(mermaidBlock?.className).toContain("border");
-      
-      // Note: Full Mermaid rendering is tested in mermaid.test.tsx with proper mocks
     });
   });
 

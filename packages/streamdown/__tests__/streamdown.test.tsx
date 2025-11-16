@@ -1,5 +1,4 @@
 import { render } from "@testing-library/react";
-import type { MermaidConfig } from "../lib/mermaid-types";
 import { describe, expect, it, vi } from "vitest";
 import { Streamdown } from "../index";
 
@@ -187,26 +186,10 @@ And an incomplete [link
     expect(allText).toContain("italic");
   });
 
-  it("should accept mermaidConfig prop", () => {
-    const mermaidConfig: MermaidConfig = {
-      theme: "dark",
-      themeVariables: {
-        primaryColor: "#ff0000",
-      },
-    } as MermaidConfig;
-
-    const { container } = render(
-      <Streamdown mermaidConfig={mermaidConfig}>Test content</Streamdown>
-    );
-
-    // Just verify it renders without error when mermaidConfig is provided
-    expect(container.firstElementChild).toBeTruthy();
-  });
-
-  it("should render without mermaidConfig", () => {
+  it("should render without errors", () => {
     const { container } = render(<Streamdown>Test content</Streamdown>);
 
-    // Just verify it renders without error when mermaidConfig is not provided
+    // Just verify it renders without error
     expect(container.firstElementChild).toBeTruthy();
   });
 });

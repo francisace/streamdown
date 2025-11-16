@@ -130,20 +130,6 @@ graph TD
       expect(buttons?.length).toBeGreaterThan(0);
     });
 
-    it("should hide only mermaid controls when mermaid is false", () => {
-      const { container } = render(
-        <Streamdown controls={{ mermaid: false }} mermaidLoader={mermaidLoader}>
-          {markdownWithMermaid}
-        </Streamdown>
-      );
-
-      const mermaidBlock = container.querySelector(
-        '[data-streamdown="mermaid-block"]'
-      );
-      const buttons = mermaidBlock?.querySelectorAll("button");
-
-      expect(buttons?.length).toBe(0);
-    });
 
     it("should allow mixed configuration", () => {
       const combined = `

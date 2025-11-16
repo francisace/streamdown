@@ -10,27 +10,18 @@ import type { BundledTheme } from "shiki";
 import { harden } from "rehype-harden";
 import type { Pluggable } from "unified";
 import { components as defaultComponents } from "./lib/components";
-import type { MermaidConfig, MermaidLoader } from "./lib/mermaid-types";
 import { parseMarkdownIntoBlocks } from "./lib/parse-blocks";
 import { parseIncompleteMarkdown } from "./lib/parse-incomplete-markdown";
 import { cn } from "./lib/utils";
 
 export { defaultUrlTransform } from "react-markdown";
 export { parseMarkdownIntoBlocks } from "./lib/parse-blocks";
-export type { MermaidConfig, MermaidLoader } from "./lib/mermaid-types";
 
 export type ControlsConfig =
   | boolean
   | {
       table?: boolean;
       code?: boolean;
-      mermaid?:
-        | boolean
-        | {
-            download?: boolean;
-            copy?: boolean;
-            fullscreen?: boolean;
-          };
     };
 
 export type StreamdownProps = Options & {
@@ -39,8 +30,6 @@ export type StreamdownProps = Options & {
   parseIncompleteMarkdown?: boolean;
   className?: string;
   shikiTheme?: [BundledTheme, BundledTheme];
-  mermaidConfig?: MermaidConfig;
-  mermaidLoader?: MermaidLoader;
   controls?: ControlsConfig;
   isAnimating?: boolean;
 };
@@ -68,14 +57,6 @@ export const ShikiThemeContext = createContext<[BundledTheme, BundledTheme]>([
   "github-light" as BundledTheme,
   "github-dark" as BundledTheme,
 ]);
-
-export const MermaidConfigContext = createContext<MermaidConfig | undefined>(
-  undefined
-);
-
-export const MermaidLoaderContext = createContext<MermaidLoader | undefined>(
-  undefined
-);
 
 export const ControlsContext = createContext<ControlsConfig>(true);
 
@@ -125,8 +106,6 @@ export const Streamdown = memo(
     remarkPlugins = Object.values(defaultRemarkPlugins),
     className,
     shikiTheme = defaultShikiTheme,
-    mermaidConfig,
-    mermaidLoader,
     controls = true,
     isAnimating = false,
     urlTransform = (value) => value,
@@ -153,35 +132,31 @@ export const Streamdown = memo(
 
     return (
       <ShikiThemeContext.Provider value={shikiTheme}>
-        <MermaidLoaderContext.Provider value={mermaidLoader}>
-          <MermaidConfigContext.Provider value={mermaidConfig}>
-            <ControlsContext.Provider value={controls}>
-              <StreamdownRuntimeContext.Provider value={runtimeContext}>
-                <div className={cn("space-y-4", className)}>
-                  {blocks.map((block, index) => (
-                    <BlockComponent
-                      components={{
-                        ...defaultComponents,
-                        ...components,
-                      }}
-                      content={block}
-                      index={index}
-                      // biome-ignore lint/suspicious/noArrayIndexKey: "required"
-                      key={`${generatedId}-block-${index}`}
-                      rehypePlugins={rehypePlugins}
-                      remarkPlugins={remarkPlugins}
-                      shouldParseIncompleteMarkdown={
-                        shouldParseIncompleteMarkdown
-                      }
-                      urlTransform={urlTransform}
-                      {...props}
-                    />
-                  ))}
-                </div>
-              </StreamdownRuntimeContext.Provider>
-            </ControlsContext.Provider>
-          </MermaidConfigContext.Provider>
-        </MermaidLoaderContext.Provider>
+        <ControlsContext.Provider value={controls}>
+          <StreamdownRuntimeContext.Provider value={runtimeContext}>
+            <div className={cn("space-y-4", className)}>
+              {blocks.map((block, index) => (
+                <BlockComponent
+                  components={{
+                    ...defaultComponents,
+                    ...components,
+                  }}
+                  content={block}
+                  index={index}
+                  // biome-ignore lint/suspicious/noArrayIndexKey: "required"
+                  key={`${generatedId}-block-${index}`}
+                  rehypePlugins={rehypePlugins}
+                  remarkPlugins={remarkPlugins}
+                  shouldParseIncompleteMarkdown={
+                    shouldParseIncompleteMarkdown
+                  }
+                  urlTransform={urlTransform}
+                  {...props}
+                />
+              ))}
+            </div>
+          </StreamdownRuntimeContext.Provider>
+        </ControlsContext.Provider>
       </ShikiThemeContext.Provider>
     );
   },

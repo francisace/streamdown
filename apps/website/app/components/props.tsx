@@ -46,23 +46,11 @@ const props = [
       'The themes to use for code blocks. Defaults to ["github-light", "github-dark"].',
   },
   {
-    name: "mermaidConfig",
-    type: "MermaidConfig",
-    description:
-      "Custom configuration for Mermaid diagrams including theme, colors, fonts, and other rendering options. See Mermaid documentation for all available options.",
-  },
-  {
-    name: "mermaidLoader",
-    type: "MermaidLoader",
-    description:
-      "Provide a function that dynamically imports Mermaid when diagrams are present. Leaving this undefined renders Mermaid code blocks as plain text, which is useful in restricted environments like Chrome extensions.",
-  },
-  {
     name: "controls",
-    type: "boolean | { table?: boolean, code?: boolean, mermaid?: boolean }",
+    type: "boolean | { table?: boolean, code?: boolean }",
     default: "true",
     description:
-      "Control the visibility of copy and download buttons. Can be a boolean to show/hide all controls, or an object to selectively control buttons for tables, code blocks, and Mermaid diagrams.",
+      "Control the visibility of copy and download buttons. Can be a boolean to show/hide all controls, or an object to selectively control buttons for tables and code blocks.",
   },
   {
     name: "isAnimating",
